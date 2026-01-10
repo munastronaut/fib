@@ -26,8 +26,8 @@ pub fn main() !void {
     defer std.process.argsFree(allocator, args);
 
     if (args.len != 2) {
-        try stderr.writeAll("Usage: lucas <number>\n");
-        try stderr.flush();
+        try stdout.writeAll("Usage: lucas <number>\n");
+        try stdout.flush();
         std.process.exit(1);
     }
 
