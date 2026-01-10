@@ -39,17 +39,13 @@ pub fn main() !void {
         std.process.exit(1);
     }
 
-    const n = std.fmt.parseInt(u64, number_arg, 10) catch |err| switch (err) {
-        error.InvalidCharacter => {
-            try stderr.writeAll("Error: Could not parse number input\n");
-            try stderr.flush();
-            std.process.exit(1);
-        },
-        error.Overflow => {
-            try stderr.writeAll("Error: Number cannot fit in range of u64\n");
-            try stderr.flush();
-            std.process.exit(1);
-        },
+    const n = std.fmt.parseInt(u64, number_arg, 10) catch |err| {
+        switch (err) {
+            error.InvalidCharacter => try stderr.writeAll("Error: Could not parse number input\n"),
+            error.Overflow => try stderr.writeAll("Error: Number cannot fit in range of u64\n"),
+        }
+        try stderr.flush();
+        std.process.exit(1);
     };
 
     const bits: c_ulong = @as(c_ulong, @intFromFloat(@as(f64, @floatFromInt(n)) * log2_phi)) + 2;
