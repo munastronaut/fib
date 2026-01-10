@@ -92,7 +92,6 @@ pub fn main() !void {
     }
 
     const end = try std.time.Instant.now();
-    const elapsed_seconds = @as(f64, @floatFromInt(end.since(start))) / std.time.ns_per_s;
 
     const c_stdout = if (builtin.os.tag == .windows)
         c.__acrt_iob_func(1)
@@ -105,6 +104,8 @@ pub fn main() !void {
     _ = c.mpz_out_str(c_stdout, 10, &a);
 
     try stdout.writeByte('\n');
-    try stdout.print("Calculation time: {d} seconds\n", .{elapsed_seconds});
+    try stdout.writeAll("Calculation time: ");
+    try stdout.printDuration(end.since(start), .{});
+    try stdout.writeByte('\n');
     try stdout.flush();
 }
