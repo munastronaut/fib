@@ -3,7 +3,7 @@ A Zig program that uses GMP to calculate Fibonacci and Lucas numbers. The fast d
 To build this, you must have Zig 0.15.2.
 
 ## Note for Windows users
-Windows users must specify where GMP is installed using `--search-prefix`. If you have MSYS2 installed and you use UCRT64, you would do this:
+Windows users must specify where GMP is installed using `--search-prefix`. If you have MSYS2 installed, you would do this:
 ```
-$ zig build --search-prefix /ucrt64
+$ zig build --search-prefix $MINGW_PREFIX
 ```
