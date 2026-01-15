@@ -7,8 +7,7 @@ const c = @cImport({
     @cInclude("gmp.h");
 });
 
-const phi = (1 + std.math.sqrt(5)) / 2;
-const log2_phi: f64 = std.math.log2(phi);
+const log2_phi: f64 = std.math.log2(std.math.phi);
 
 pub fn main() !void {
     const allocator = std.heap.smp_allocator;
