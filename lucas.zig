@@ -101,6 +101,7 @@ pub fn main() !void {
     try stdout.flush();
 
     _ = c.mpz_out_str(c_stdout, 10, &a);
+    _ = c.fflush(c_stdout);
 
     try stdout.writeByte('\n');
     try stdout.writeAll("Calculation time: ");
