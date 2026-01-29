@@ -19,11 +19,11 @@ pub fn build(b: *std.Build) void {
                 .root_source_file = b.path(prog.source),
                 .target = target,
                 .optimize = optimize,
+                .link_libc = true,
             }),
         });
 
-        exe.linkLibC();
-        exe.linkSystemLibrary("gmp");
+        exe.root_module.linkSystemLibrary("gmp", .{});
 
         b.installArtifact(exe);
     }

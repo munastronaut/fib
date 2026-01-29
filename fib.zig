@@ -9,23 +9,20 @@ const c = @cImport({
 
 const log2_phi: f64 = std.math.log2(std.math.phi);
 
-pub fn main() !void {
-    const allocator = std.heap.smp_allocator;
+pub fn main(init: std.process.Init) !void {
+    const args = try init.minimal.args.toSlice(init.gpa);
 
     var stdout_buffer: [4096]u8 = undefined;
     var stderr_buffer: [4096]u8 = undefined;
 
-    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    var stdout_writer = std.Io.File.stdout().writer(init.io, &stdout_buffer);
     const stdout = &stdout_writer.interface;
 
-    var stderr_writer = std.fs.File.stderr().writer(&stderr_buffer);
+    var stderr_writer = std.Io.File.stderr().writer(init.io, &stderr_buffer);
     const stderr = &stderr_writer.interface;
 
-    const args = try std.process.argsAlloc(allocator);
-    defer std.process.argsFree(allocator, args);
-
     if (args.len != 2) {
-        try stdout.writeAll("Usage: fib <number>\n");
+        try stdout.print("Usage: {s} <number>\n", .{args[0]});
         try stdout.flush();
         std.process.exit(1);
     }
@@ -92,16 +89,11 @@ pub fn main() !void {
 
     const end = try std.time.Instant.now();
 
-    const c_stdout = if (builtin.os.tag == .windows)
-        c.__acrt_iob_func(1)
-    else
-        c.stdout;
-
     try stdout.print("F_{d} = ", .{n});
     try stdout.flush();
 
-    _ = c.mpz_out_str(c_stdout, 10, &a);
-    _ = c.fflush(c_stdout);
+    _ = c.mpz_out_str(@as(?*c.FILE, null), 10, &a);
+    _ = c.fflush(@as(?*c.FILE, null));
 
     try stdout.writeByte('\n');
     try stdout.writeAll("Calculation time: ");
