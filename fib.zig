@@ -1,4 +1,10 @@
 const std = @import("std");
+const Io = std.Io;
+const process = std.process;
+const Init = process.Init;
+const ascii = std.ascii;
+const mem = std.mem;
+const fmt = std.fmt;
 const builtin = @import("builtin");
 
 const c = @cImport({
@@ -9,39 +15,41 @@ const c = @cImport({
 
 const log2_phi: f64 = std.math.log2(std.math.phi);
 
-pub fn main(init: std.process.Init) !void {
-    const args = try init.minimal.args.toSlice(init.gpa);
+pub fn main(init: Init) !void {
+    const allocator = init.arena.allocator();
+
+    const args = try init.minimal.args.toSlice(allocator);
 
     var stdout_buffer: [4096]u8 = undefined;
     var stderr_buffer: [4096]u8 = undefined;
 
-    var stdout_writer = std.Io.File.stdout().writer(init.io, &stdout_buffer);
+    var stdout_writer = Io.File.stdout().writer(init.io, &stdout_buffer);
     const stdout = &stdout_writer.interface;
 
-    var stderr_writer = std.Io.File.stderr().writer(init.io, &stderr_buffer);
+    var stderr_writer = Io.File.stderr().writer(init.io, &stderr_buffer);
     const stderr = &stderr_writer.interface;
 
     if (args.len != 2) {
         try stdout.print("Usage: {s} <number>\n", .{args[0]});
         try stdout.flush();
-        std.process.exit(1);
+        process.exit(1);
     }
 
-    const number_arg = std.mem.trim(u8, args[1], &std.ascii.whitespace);
+    const number_arg = mem.trim(u8, args[1], &ascii.whitespace);
 
-    if (std.ascii.startsWithIgnoreCase(number_arg, "-")) {
+    if (ascii.startsWithIgnoreCase(number_arg, "-")) {
         try stderr.writeAll("Error: Input must be a nonnegative integer\n");
         try stderr.flush();
-        std.process.exit(1);
+        process.exit(1);
     }
 
-    const n = std.fmt.parseInt(u64, number_arg, 10) catch |err| {
+    const n = fmt.parseInt(u64, number_arg, 10) catch |err| {
         switch (err) {
             error.InvalidCharacter => try stderr.writeAll("Error: Could not parse number input\n"),
             error.Overflow => try stderr.writeAll("Error: Number cannot fit in range of u64\n"),
         }
         try stderr.flush();
-        std.process.exit(1);
+        process.exit(1);
     };
 
     const bits: c_ulong = @as(c_ulong, @intFromFloat(@as(f64, @floatFromInt(n)) * log2_phi)) + 2;
@@ -62,7 +70,7 @@ pub fn main(init: std.process.Init) !void {
 
     var i: u6 = if (n == 0) 0 else @intCast(64 - @clz(n));
 
-    const start = try std.time.Instant.now();
+    const start = Io.Timestamp.now(init.io, Io.Clock.real);
 
     while (i > 0) {
         i -= 1;
@@ -87,7 +95,8 @@ pub fn main(init: std.process.Init) !void {
         }
     }
 
-    const end = try std.time.Instant.now();
+    const end = Io.Timestamp.now(init.io, Io.Clock.real);
+    const duration = start.durationTo(end).toNanoseconds();
 
     try stdout.print("F_{d} = ", .{n});
     try stdout.flush();
@@ -97,7 +106,7 @@ pub fn main(init: std.process.Init) !void {
 
     try stdout.writeByte('\n');
     try stdout.writeAll("Calculation time: ");
-    try stdout.printDuration(end.since(start), .{});
+    try stdout.printDuration(@as(i64, @intCast(duration)), .{});
     try stdout.writeByte('\n');
     try stdout.flush();
 }
