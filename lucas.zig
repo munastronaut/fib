@@ -66,7 +66,7 @@ pub fn main(init: Init) !void {
     c.mpz_init2(&t_a, bits);
     c.mpz_set_ui(&a, 2);
     c.mpz_set_ui(&b, 1);
-    defer c.mpz_clears(&a, &b, &t1, &t2, &t_a, c.NULL);
+    defer c.mpz_clears(&a, &b, &t1, &t2, &t_a, @as(?*c.FILE, null));
 
     var i: u6 = if (n == 0) 0 else @intCast(64 - @clz(n));
 
