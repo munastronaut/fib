@@ -70,7 +70,7 @@ pub fn main(init: Init) !void {
 
     var i: u6 = if (n == 0) 0 else @intCast(64 - @clz(n));
 
-    const start = Io.Timestamp.now(init.io, .awake);
+    const start = Io.Clock.awake.now(init.io);
 
     while (i > 0) {
         i -= 1;
@@ -95,7 +95,7 @@ pub fn main(init: Init) !void {
         }
     }
 
-    const end = Io.Timestamp.now(init.io, .awake);
+    const end = Io.Clock.awake.now(init.io);
     const duration = start.durationTo(end).toNanoseconds();
 
     try stdout.print("F_{d} = ", .{n});
