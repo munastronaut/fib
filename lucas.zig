@@ -30,8 +30,8 @@ pub fn main(init: Init) !void {
     const stderr = &stderr_writer.interface;
 
     if (args.len != 2) {
-        try stdout.print("Usage: {s} <number>\n", .{args[0]});
-        try stdout.flush();
+        try stderr.print("Usage: {s} <number>\n", .{args[0]});
+        try stderr.flush();
         process.exit(1);
     }
 
