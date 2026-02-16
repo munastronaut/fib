@@ -1,4 +1,4 @@
-# fib
+# zfib
 A Zig program that uses GMP to calculate Fibonacci and Lucas numbers. The fast doubling algorithm is used for this purpose.
 To build this, you must have Zig master (0.16.0-dev).
 
